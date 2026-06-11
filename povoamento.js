@@ -37,7 +37,7 @@ db.funcionario.insertMany([
   {"id_func": "func_01", "nome_func": "Felipe Almeida", "cargo": "garcom", "salario": 2000.00}, 
   {"id_func": "func_02", "nome_func": "Kaynan Roberth", "cargo": "barista", "salario": 2500.00}, 
   {"id_func": "func_03", "nome_func": "Guilherme Zloccowick", "cargo": "gerente", "salario": 3000.00 },
-  {"id_func": "func_04", "nome_func": "Caio Daltro", "cargo": "faxineiro", "salario": 1700.00 }, 
+  {"id_func": "func_04", "nome_func": "Caio Daltro", "cargo": "caixa", "salario": 1700.00 }, 
   {"id_func": "func_05", "nome_func": "Clara Pereira", "cargo": "garcom", "salario": 2600.00 }
 ]) 
 
