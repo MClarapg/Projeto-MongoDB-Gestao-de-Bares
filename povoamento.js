@@ -1,38 +1,38 @@
-/* Para rodar o código, acesse o Mongoshdb Shell pelo terminal, já executando,
-    Nome do banco de dados: GestaoBar, se não existir, cria de forma implícita
-    Inicialize com:
-      use GestaoBar
-*/
+// Para rodar o código, acesse o Mongoshdb Shell pelo terminal, já executando
 
-// Caso precise droppar as informações: fica ativado para teste
+use ("Caipivaras");     // Nome do nosso bar (Caipirinha + Capivaras)
+
+// Caso precise droppar as informações: 
 db.funcionario.drop()
 db.produto.drop()
 db.caixa.drop()
 db.comanda.drop()
 db.vendas.drop()
 
-// Criação das coleções (o equivalente a tabelas)
-// Embora a criação implícita funcione, é bom garantir
-db.createCollection("funcionario")
-db.createCollection("produto")
-db.createCollection("caixa")
-db.createCollection("comanda")
-db.createCollection("vendas")
-
-// O povoamento foi feito com apenas 5 exemplos de cada, mas pode ser facilmente incrementado
+// O povoamento foi feito com 15 instâncias em cada coleção
 /*
     Observações:
       A ordem de criação importa, há coleções que dependem de outras, então a ordem de criação deve ser:
       1. "funcionario", "produto", "caixa"
       2. "comanda"
       3. "vendas"
-
+      
       O formato de data é diferente pelo próprio padrão do MongoDB:
       A data é conhecida como: YYYY-MM-DDTHH:MM:SSZ
       Por exemplo: 2026-06-08T17:00:00, ou seja, dia 08 de 06 de 2026, às 17h
 */
 
-// Povoando a coleção funcionario
+// Criação da coleção funcionario
+db.createCollection("funcionario")
+
+/* Povoando a coleção funcionario
+    Funcionário:
+        id_func                  (identificador)
+        nome_func
+        cargo                    (caixa, garcom, gerente, barista)
+        salario                   
+*/
+
 db.funcionario.insertMany([
   {"id_func": "func_01", "nome_func": "Felipe Almeida", "cargo": "garcom", "salario": 2000.00}, 
   {"id_func": "func_02", "nome_func": "Kaynan Roberth", "cargo": "barista", "salario": 2500.00}, 
@@ -41,7 +41,18 @@ db.funcionario.insertMany([
   {"id_func": "func_05", "nome_func": "Clara Pereira", "cargo": "garcom", "salario": 2600.00 }
 ]) 
 
-// Povoando a coleção produto
+// Criação da coleção produto
+db.createCollection("produto")
+
+/* Povoando a coleção produto
+    Produto:
+        id_prod                     (identificador)
+        nome_prod
+        categoria                   (bebida, porção)
+        preco
+        estoque
+*/
+
 db.produto.insertMany([
   { "id_prod": "id_p01", "nome_prod": "Chopp Artesanal", "categoria": "bebida", "preco": 8.00, "estoque": 150 },
   { "id_prod": "id_p02", "nome_prod": "Batata Frita", "categoria": "porção", "preco": 15.00, "estoque": 40 },
@@ -50,7 +61,19 @@ db.produto.insertMany([
   { "id_prod": "id_p05", "nome_prod": "Breja", "categoria": "bebida", "preco": 6.00, "estoque": 200 }
 ])
 
-// Povoando a coleção caixa
+// Criação da coleção caixa
+db.createCollection("caixa")
+
+/* Povoando a coleção caixa
+    Caixa:    
+      id_cx                               (identificador)
+      hora_abertura                       
+      hora_fechamento                     
+      valor_abertura                      
+      valor_fechamento
+      status                              (fechado, aberto)
+*/
+
 db.caixa.insertMany( [
   { "id_cx": "id_cx260608", "hora_abertura": ISODate("2026-06-08T17:00:00Z"), "hora_fechamento": ISODate("2026-06-09T02:00:00Z"), "valor_abertura": 200.00, "valor_fechamento": 1850.00, "status": "fechado" },
   { "id_cx": "id_cx260609", "hora_abertura": ISODate("2026-06-09T17:00:00Z"), "hora_fechamento": ISODate("2026-06-10T02:30:00Z"), "valor_abertura": 200.00, "valor_fechamento": 2100.00, "status": "fechado" },
@@ -59,13 +82,30 @@ db.caixa.insertMany( [
   { "id_cx": "id_cx260612", "hora_abertura": ISODate("2026-06-12T17:00:00Z"), "hora_fechamento": null, "valor_abertura": 300.00, "valor_fechamento": null, "status": "aberto" }
 ])
 
-// Povoando a coleção comanda
+// Criação da coleção comanda
+db.createCollection("comanda")
+
+/* Povoando a coleção comanda
+    Comanda:
+      id_co                               (identificador)
+      numero_mesa
+      quantidade_pessoas                  (na mesa)
+      status                              (livre, ocupada)
+      id_garcom                           (referencia funcionario, apenas quando for garçom)
+      itens (pedido):	[{		 		            (array, podem ser vários itens)
+          id_produto                      (referencia produto)
+          nome_produto
+          quantidade_produto
+          preco_unitario_produto }]    
+      total_parcial
+*/
+
 db.comanda.insertMany([
-  { "id_co": "com_mesa_04",  "numero_mesa": 4, "quantidade_pessoas": 2, "status": "ocupada",  "id_garcom": "01",
+  { "id_co": "com_mesa_04",  "numero_mesa": 4, "quantidade_pessoas": 2, "status": "ocupada",  "id_garcom": "func_01",
     "itens": (
       { "id_prod": "id_p01", "nome_prod": "Chopp Artesanal", "quantidade_prod": 3,  "preco_unitario_prod": 8.00},
       { "id_prod": "id_p02", "nome_prod": "Batata Frita", "quantidade_prod": 1, "preco_unitario_prod": 15.00 } ),
-    "total_parcial": 71.00 },
+    "total_parcial": 39.00 },
 
   { "id_co": "com_mesa_12", "numero_mesa": 12, "quantidade_pessoas": 4, "status": "ocupada", "id_garcom": "05",
     "itens": (
@@ -79,7 +119,7 @@ db.comanda.insertMany([
 
   { "id_co": "com_mesa_07", "numero_mesa": 7, "quantidade_pessoas": 1, "status": "ocupada", "id_garcom": "01",
     "itens": [
-    	  { "id_produto": "id_p05", "nome_prod": "Café Espresso", "quantidade_produto": 1, "preco_unitario_produto": 6.00 } ],
+    	  { "id_produto": "id_p05", "nome_prod": "Breja", "quantidade_produto": 1, "preco_unitario_produto": 6.00 } ],
     "total_parcial": 6.00 },
 
   { "id_co": "com_mesa_02", "numero_mesa": 2, "quantidade_pessoas": 0, "status": "livre", "id_garcom": null, 
@@ -87,39 +127,58 @@ db.comanda.insertMany([
     "total_parcial": 0.00 } 
 ])
 
-// Povoando a coleção vendas
+// Criação da coleção vendas
+db.createCollection("vendas")
+
+/* Povoando a coleção vendas
+    Vendas:
+      id_venda
+      id_comanda_origem                   (referencia comanda)
+      data
+      id_caixa
+      itens_vendidos:				              // array, podem ser vários itens
+          nome_produto                    (referencia produto)
+          quantidade_produto
+          preco_pago
+      total_pago
+      forma_pagamento                     (dinheiro, pix, cartão)
+
+    Só é inserida uma instância em vendas logo antes da comanda correspondente ser fechada,
+    os atributos são copiados como valores da nova instância, então a mesa é dada como livre novamente
+*/
+
 db.vendas.insertMany([
   { "_id": "venda_001", "id_comanda_origem": "com_antiga_101", "data": ISODate("2026-06-08T21:40:00Z"), "id_caixa": "cx_20260608",
     "itens_vendidos": [
-      { "nome_produto": "Chopp Artesanal 500ml", "quantidade_produto": 5, "preco_pago": 12.00 },
-      { "nome_produto": "Batata Frita com Queijo", "quantidade_produto": 2, "preco_pago": 35.00 }],
-    "total_pago": 130.00,
+      { "nome_produto": "Chopp Artesanal", "quantidade_produto": 5, "preco_pago": 8.00 },
+      { "nome_produto": "Batata Frita", "quantidade_produto": 2, "preco_pago": 15.00 }],
+    "total_pago": 70.00,
     "forma_pagamento": "cartão" },
 
   { "_id": "venda_002", "id_comanda_origem": "com_antiga_102", "data": ISODate("2026-06-08T23:15:00Z"), "id_caixa": "cx_20260608",
     "itens_vendidos": [
-      { "nome_produto": "Hambúrguer da Casa", "quantidade_produto": 1, "preco_pago": 28.00 },
-      { "nome_produto": "Caipirinha de Limão", "quantidade_produto": 2, "preco_pago": 18.00 }],
-    "total_pago": 64.00,
+      { "nome_produto": "Hambúrguer", "quantidade_produto": 1, "preco_pago": 28.00 },
+      { "nome_produto": "Caipirinha de Limão", "quantidade_produto": 2, "preco_pago": 8.00 }],
+    "total_pago": 44.00,
     "forma_pagamento": "pix" },
 
   { "_id": "venda_003", "id_comanda_origem": "com_antiga_103", "data": ISODate("2026-06-09T22:00:00Z"), "id_caixa": "cx_20260609",
     "itens_vendidos": [
-      { "nome_produto": "Café Espresso", "quantidade_produto": 2, "preco_pago": 6.00 }],
+      { "nome_produto": "Breja", "quantidade_produto": 2, "preco_pago": 6.00 }],
     "total_pago": 12.00,
     "forma_pagamento": "dinheiro" },
 
   { "_id": "venda_004", "id_comanda_origem": "com_antiga_104", "data": ISODate("2026-06-09T23:55:00Z"), "id_caixa": "cx_20260609",
     "itens_vendidos": [
-      { "nome_produto": "Chopp Artesanal 500ml", "quantidade_produto": 10, "preco_pago": 12.00 },
-      { "nome_produto": "Batata Frita com Queijo", "quantidade_produto": 3, "preco_pago": 35.00 }],
-    "total_pago": 225.00,
+      { "nome_produto": "Chopp Artesanal", "quantidade_produto": 10, "preco_pago": 8.00 },
+      { "nome_produto": "Batata Frita", "quantidade_produto": 3, "preco_pago": 15.00 }],
+    "total_pago": 125.00,
     "forma_pagamento": "cartão" },
 
   { "_id": "venda_005", "id_comanda_origem": "com_antiga_105", "data": ISODate("2026-06-10T20:10:00Z"), "id_caixa": "cx_20260610",
     "itens_vendidos": [
-      { "nome_produto": "Hambúrguer da Casa", "quantidade_produto": 2, "preco_pago": 28.00 },
-      { "nome_produto": "Chopp Artesanal 500ml", "quantidade_produto": 4, "preco_pago": 12.00 }],
-    "total_pago": 104.00,
+      { "nome_produto": "Hambúrguer", "quantidade_produto": 2, "preco_pago": 28.00 },
+      { "nome_produto": "Chopp Artesanal", "quantidade_produto": 4, "preco_pago": 8.00 }],
+    "total_pago": 88.00,
     "forma_pagamento": "pix" }
 ])
