@@ -1,8 +1,8 @@
-/*  Caso 1: Demissão do garçom que não atende mesas
-    Operações: find, distinct, deleteMany, insert      */
+// Acessando o databse do bar
+use ("Caipivaras");
 
-db.funcionario.insertOne(  
-    {"id_func": "func_21", "nome_func": "Caleb Vatore", "cargo": "garcom", "salario": 2600.00});
+/*  Caso 1: Demissão do garçom que não atende mesas
+    Operações: find, distinct, deleteMany, insertOne      */
 
 // Garçons ocupados, que não serão demitidos
 var garcons_ocupados = db.comanda.distinct("id_garcom", { "status": "ocupada" });
@@ -55,14 +55,14 @@ print("Fechamento do caixa: \n");
 print("Faturamento em Vendas: R$" + faturamento_vendas);
 print("Valor de fechamento: R$" + valor_total_caixa);
 
-if (faturamento_vendas > 1500.00) {
+if (faturamento_vendas > 800.00) { 
     print("Um dia mais longe da falência")}
 
 
 /* Caso 3: Promoção do gerente caso o bar bata a meta de faturamento do dia
-      Operações:  updateMany, gte, add, cond, set                          */
+      Operações:  updateMany, gte, add, countDocuments, set, cond          */
 
-var meta_faturamento = 200.00;
+var meta_faturamento = 700.00;  
 var qnt_gerentes = db.funcionario.countDocuments({"cargo":"gerente"});
 
 db.funcionario.updateMany(
@@ -99,7 +99,7 @@ var produtos_combo = db.produto.find(
 
 
 /* Caso 5: Os 3 produtos mais caros constituem um combo, caso uma mesa peça esse combo, ganha um desconto
-        Operações: text, search, all, function                                                                         */
+        Operações: text, search, all, function, filter                                                                         */
 
 // Índice obrigatório para uso do text
 db.produto.createIndex({ "nome_prod": "text" });
@@ -119,27 +119,32 @@ var filtro_1 = new RegExp(termo1, "i");
 var filtro_2 = new RegExp(termo2, "i");
 var filtro_3 = new RegExp(termo3, "i");
 
-// Essa parte é usada 2 vezes, então tratar o filtro como uma variável é mais prático
 var filtro_combo = { 
   "status": "ocupada",
   "itens.nome_prod": { "$all": [ filtro_1, filtro_2, filtro_3 ] }
 };
 
-var mesas_sortudas = db.comanda.find(filtro_combo, { "numero_mesa": 1, "_id": 0 }).toArray();
-// Aplicação do desconto
-var resultado_desconto = db.comanda.updateMany(filtro_combo, { $inc: { "total_parcial": -8.00 } });
+var mesas_com_o_combo = db.comanda.find(filtro_combo).toArray();
+var mesas_sortudas = mesas_com_o_combo.filter(function(comanda) {
+    return comanda.quantidade_pessoas > 1; 
+});
 
-// Print das mesas 
-if ( mesas_sortudas.length > 0) {
+if (mesas_sortudas.length > 0) {
+    var ids_sortudos = mesas_sortudas.map(function(c) { return c.id_co; });
+
+    db.comanda.updateMany(
+        { "id_co": { "$in": ids_sortudos } },
+        { $inc: { "total_parcial": -8.00 } }
+    );
+
     print("Mesas sortudas da noite:");
-    mesas_sortudas.forEach(
-        function(comanda) {
+    mesas_sortudas.forEach(function(comanda) {
         print("Mesa Número: " + comanda.numero_mesa); }
-        ); }
+    );}
 else { print("Nenhuma mesa foi agraciada hoje..."); }
 
 /* Caso 6: Renomeação da coleção vendas
-   Operações: renameCollection */
+   Operações: renameCollection         */
 
 // Todas as coleções têm nome no singular, exceto vendas -> ajustando isso antes do próximo caso
 db.vendas.renameCollection("venda");
@@ -159,10 +164,10 @@ if (registro_maior_valor.length > 0) {
     print("Valor da comanda com CPF na nota que mais gastou: R$ " + resultado.maior_valor_encontrado); } 
     else {print("Não tivemos nenhuma comanda com CPF na nota hoje..."); }
 
-/* Caso 8:Gasto médio por pessoa com produtos e as porções solicitadas em cada mesa
-    Operações: match, gt, lookup, project, divide                                   */
+/* Caso 8:Gasto médio por pessoa com produtos
+    Operações: match, gt, lookup, project, divide */
 
-var relatorio_porcoes_cozinha = db.comanda.aggregate([
+var relatorio_gasto_pp = db.comanda.aggregate([
   { $match: { 
       "status": "ocupada",                              // mesa ocupada
       $expr: { $gt: [ "$quantidade_pessoas", 0 ] }}     // há cliente na mesa
@@ -177,15 +182,16 @@ var relatorio_porcoes_cozinha = db.comanda.aggregate([
       "_id": 0,
       "numero_mesa": 1,
       "total_parcial": 1,
-      "media_gasto_por_pessoa": { $divide: [ "$total_parcial", "$quantidade_pessoas" ] },
+      "media_gasto_por_pessoa": { 
+        $round: [ {$divide: [ "$total_parcial", "$quantidade_pessoas" ]}, 2]}
     }}
 ]).toArray();
 
-print("Painel de porções da cozinha:");
-printjson(relatorio_porcoes_cozinha);
+print("Gasto médio por pessoa na mesa:");
+printjson(relatorio_gasto_pp);
 
 /* Caso 9: Criação de relatório por categoria do produto e preço
-   Operações: mapreduce                                          */
+   Operações: mapreduce, function                                          */
 // Ao rodar o código, aparece um aviso de que a operação está depreciada, mas funciona
 
 var funcaoMap = function() {
@@ -200,11 +206,11 @@ db.vendas.mapReduce(funcaoMap, funcaoReduce, { out: "relatorio_impostos_final" }
 
 /* Caso 10: Os gastronômicos
    É uma operação que encontra mesas que pediram uma grande diversidade de produtos
-   Operação: size                                                                   */
+   Operação: size, find                                                                   */
 
 db.comanda.find({ 
   "status": "ocupada", 
-  "itens": { $size: 3 }},         // as mesas que pediram 3 produtos diferentes aparecem aqui
+  "itens": { $size: 5 }},         // as mesas que pediram 5 produtos diferentes aparecem aqui
   { "_id": 0, 
     "Número da mesa": "$numero_mesa", 
     "Nome do produto": "$itens.nome_prod"}
@@ -236,14 +242,8 @@ db.funcionario.find(
     "Nome do funcionário": "$nome_func",
     "Comandas destaque": "$comandas_destaque"});
 
-/* Caso 12: Analisa a produtividade média do garçom (média das vendas) 
-   Operações: AVG, lookup, group, function, agreggate, project         */
-
-// Dando um update para gerar conexão entre vendas e comandas
-// Atualiza as vendas para linkar com as comandas do seu povoamento
-db.venda.updateOne({ "id_venda": "venda_001" }, { $set: { "id_comanda_origem": "com_mesa_04" } });
-db.venda.updateOne({ "id_venda": "venda_002" }, { $set: { "id_comanda_origem": "com_mesa_12" } });
-db.venda.updateOne({ "id_venda": "venda_005" }, { $set: { "id_comanda_origem": "com_mesa_23" } });
+/* Caso 12: Analisa a produtividade média do garçom (média das comandas ativas) 
+   Operações: AVG, lookup, group, function, agreggate, project, updateOne         */
 
 // Análise do caso
 db.venda.aggregate([
@@ -269,6 +269,58 @@ db.venda.aggregate([
       "nome_garcom": { $arrayElemAt: ["$funcionario_info.nome_func", 0] },
       "media_venda_garcom": 1}
   }]).forEach(function(resultado) {
-    var nome = resultado.nome_garcom ? resultado.nome_garcom : "Garçom Não Encontrado";
-    print("Garçom: " + nome + " | Média de Vendas: R$ " + resultado.media_venda_garcom);
+    if (resultado.nome_garcom) {
+        print("Garçom: " + resultado.nome_garcom + " | Média de Vendas: R$ " + resultado.media_venda_garcom); }
+});
+
+/* Caso 13: Uma mesa pediu a conta 
+   (encerra a conta, cria uma nova instância em vendas e limpa a comanda da mesa) 
+   Operações: findOne, insertOne, updateOne, set                                   */
+
+// Acha a mesa ocupada
+var comanda_ativa = db.comanda.findOne({ "numero_mesa": 12, "status": "ocupada" }); // exemplo da mesa 12
+if (comanda_ativa) {
+    var novo_id_venda = "venda_mesa_" + comanda_ativa.numero_mesa;  // novo id
+    var caixa_do_dia = db.caixa.findOne({"status": "aberto"});
+    // Inserindo os dados da comanda em venda
+    db.venda.insertOne({
+        "id_venda": novo_id_venda,
+        "id_comanda_origem": comanda_ativa.id_co,
+        "data": new Date(),                                         // hora do pagamento
+        "id_caixa": caixa_do_dia,                                   // caixa do dia
+        "itens_vendidos": comanda_ativa.itens,                      // copia os pedidos
+        "total_pago": comanda_ativa.total_parcial,                  // transfere o valor acumulado
+        "forma_pagamento": "pix"                                    // como o cliente escolheu pagar
+    });
+
+// Atualiza os valores da comanda
+    db.comanda.updateOne(
+        { "id_co": comanda_ativa.id_co },
+        { $set: {
+                "quantidade_pessoas": 0,
+                "status": "livre",
+                "id_garcom": null,
+                "itens": [], 
+                "total_parcial": 0.00 }}
+    );
+
+    print("Comanda da mesa 12 encerrada com sucesso!");
+    print("A mesa já está liberada para novos clientes.");
+    print("Registro da vennda enviado para -> (" + novo_id_venda + ").");
+} else {
+    print("Nenhuma comanda ocupada foi encontrada para a Mesa 12."); }
+
+
+/* Caso 14: A mesa pediu mais um item
+   Operações: updateOne              */
+
+db.comanda.updateOne(
+  { "id_co": "com_mesa_07"},
+  { $push: { 
+      itens: { 
+        "id_prod": "id_p02",
+        "nome_prod": "Batata Frita", 
+        "quantidade_prod": 1, 
+        "preco_unitario_prod": 15.00 }} },
+  { $inc: { "total_parcial": 15.00 }
 });
