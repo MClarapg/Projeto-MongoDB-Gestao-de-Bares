@@ -29,16 +29,17 @@ db.createCollection("funcionario")
     Funcionário:
         id_func                  (identificador)
         nome_func
-        cargo                    (caixa, garcom, gerente, barista)
+        cargo                    (caixa, garcom, gerente, barman)
         salario                   
 */
 
 db.funcionario.insertMany([
-  {"id_func": "func_01", "nome_func": "Felipe Almeida", "cargo": "garcom", "salario": 2000.00}, 
-  {"id_func": "func_02", "nome_func": "Kaynan Roberth", "cargo": "barista", "salario": 2500.00}, 
-  {"id_func": "func_03", "nome_func": "Guilherme Zloccowick", "cargo": "gerente", "salario": 3000.00 },
-  {"id_func": "func_04", "nome_func": "Caio Daltro", "cargo": "caixa", "salario": 1700.00 }, 
-  {"id_func": "func_05", "nome_func": "Clara Pereira", "cargo": "garcom", "salario": 2600.00 }
+  {"id_func": "func_01", "nome_func": "Felipe Almeida", "cargo": "garcom", "salario": 2600.00}, 
+  {"id_func": "func_02", "nome_func": "Kaynan Roberth", "cargo": "barman", "salario": 3000.00}, 
+  {"id_func": "func_03", "nome_func": "Guilherme Zloccowick", "cargo": "gerente", "salario": 3600.00},
+  {"id_func": "func_04", "nome_func": "Caio Daltro", "cargo": "caixa", "salario": 2600.00}, 
+  {"id_func": "func_05", "nome_func": "Clara Pereira", "cargo": "garcom", "salario": 2600.00},
+  {"id_func": "func_06", "nome_func": "Jonas Barbosa", "cargo": "garcom", "salario": 2600.00},
 ]) 
 
 // Criação da coleção produto
@@ -75,11 +76,11 @@ db.createCollection("caixa")
 */
 
 db.caixa.insertMany( [
-  { "id_cx": "id_cx260608", "hora_abertura": ISODate("2026-06-08T17:00:00Z"), "hora_fechamento": ISODate("2026-06-09T02:00:00Z"), "valor_abertura": 200.00, "valor_fechamento": 1850.00, "status": "fechado" },
-  { "id_cx": "id_cx260609", "hora_abertura": ISODate("2026-06-09T17:00:00Z"), "hora_fechamento": ISODate("2026-06-10T02:30:00Z"), "valor_abertura": 200.00, "valor_fechamento": 2100.00, "status": "fechado" },
-  { "id_cx": "id_cx260610", "hora_abertura": ISODate("2026-06-10T17:00:00Z"), "hora_fechamento": ISODate("2026-06-11T01:15:00Z"), "valor_abertura": 250.00, "valor_fechamento": 1550.00, "status": "fechado" },
-  { "id_cx": "id_cx260611", "hora_abertura": ISODate("2026-06-11T17:00:00Z"), "hora_fechamento": ISODate("2026-06-11T16:00:00Z"), "valor_abertura": 150.00, "valor_fechamento": 720.00, "status": "fechado" },
-  { "id_cx": "id_cx260612", "hora_abertura": ISODate("2026-06-12T17:00:00Z"), "hora_fechamento": null, "valor_abertura": 300.00, "valor_fechamento": null, "status": "aberto" }
+  { "id_cx": "id_cx20260608", "hora_abertura": ISODate("2026-06-08T17:00:00Z"), "hora_fechamento": ISODate("2026-06-09T02:00:00Z"), "valor_abertura": 200.00, "valor_fechamento": 1850.00, "status": "fechado" },
+  { "id_cx": "id_cx20260609", "hora_abertura": ISODate("2026-06-09T17:00:00Z"), "hora_fechamento": ISODate("2026-06-10T02:30:00Z"), "valor_abertura": 200.00, "valor_fechamento": 2100.00, "status": "fechado" },
+  { "id_cx": "id_cx20260610", "hora_abertura": ISODate("2026-06-10T17:00:00Z"), "hora_fechamento": ISODate("2026-06-11T01:15:00Z"), "valor_abertura": 250.00, "valor_fechamento": 1550.00, "status": "fechado" },
+  { "id_cx": "id_cx20260611", "hora_abertura": ISODate("2026-06-11T17:00:00Z"), "hora_fechamento": ISODate("2026-06-11T16:00:00Z"), "valor_abertura": 150.00, "valor_fechamento": 720.00, "status": "fechado" },
+  { "id_cx": "id_cx20260612", "hora_abertura": ISODate("2026-06-12T17:00:00Z"), "hora_fechamento": null, "valor_abertura": 300.00, "valor_fechamento": null, "status": "aberto" }
 ])
 
 // Criação da coleção comanda
@@ -95,7 +96,7 @@ db.createCollection("comanda")
       itens (pedido):	[{		 		            (array, podem ser vários itens)
           id_produto                      (referencia produto)
           nome_produto
-          quantidade_produto
+          quantidade_prod
           preco_unitario_produto }]    
       total_parcial
 */
@@ -107,24 +108,31 @@ db.comanda.insertMany([
       { "id_prod": "id_p02", "nome_prod": "Batata Frita", "quantidade_prod": 1, "preco_unitario_prod": 15.00 } ),
     "total_parcial": 39.00 },
 
-  { "id_co": "com_mesa_12", "numero_mesa": 12, "quantidade_pessoas": 4, "status": "ocupada", "id_garcom": "05",
+  { "id_co": "com_mesa_12", "numero_mesa": 12, "quantidade_pessoas": 4, "status": "ocupada", "id_garcom": "func_05",
     "itens": (
-      { "id_produto": "id_p03", "nome_produto": "Caipirinha de Limão", "quantidade_produto": 4, "preco_unitario_produto": 18.00 },
-      { "id_produto": "id_p04", "nome_produto": "Hambúrguer", "quantidade_produto": 4, "preco_unitario_produto": 28.00 } ),
+      { "id_prod": "id_p03", "nome_prod": "Caipirinha de Limão", "quantidade_prod": 4, "preco_unitario_produto": 18.00 },
+      { "id_prod": "id_p04", "nome_prod": "Hambúrguer", "quantidade_prod": 4, "preco_unitario_produto": 28.00 } ),
     "total_parcial": 184.00 },
 
   {"id_co": "com_mesa_01", "numero_mesa": 1, "quantidade_pessoas": 0, "status": "livre", "id_garcom": null, 
     "itens": [], 
     "total_parcial": 0.00 },
 
-  { "id_co": "com_mesa_07", "numero_mesa": 7, "quantidade_pessoas": 1, "status": "ocupada", "id_garcom": "01",
+  { "id_co": "com_mesa_07", "numero_mesa": 7, "quantidade_pessoas": 1, "status": "ocupada", "id_garcom": "func_01",
     "itens": [
-    	  { "id_produto": "id_p05", "nome_prod": "Breja", "quantidade_produto": 1, "preco_unitario_produto": 6.00 } ],
+    	  { "id_prod": "id_p05", "nome_prod": "Breja", "quantidade_prod": 1, "preco_unitario_produto": 6.00 } ],
     "total_parcial": 6.00 },
 
   { "id_co": "com_mesa_02", "numero_mesa": 2, "quantidade_pessoas": 0, "status": "livre", "id_garcom": null, 
     "itens": [], 
-    "total_parcial": 0.00 } 
+    "total_parcial": 0.00 },
+
+    {"id_co": "com_mesa_23", "numero_mesa": 17, "quantidade_pessoas": 2, "status": "ocupada", "id_garcom": "func_05",
+    "itens": [
+      { "id_prod": "id_p03", "nome_prod": "Batata", "quantidade_prod": 3, "preco_unitario_produto": 15.00 },
+      { "id_prod": "id_p04", "nome_prod": "Hambúrguer", "quantidade_prod": 4, "preco_unitario_produto": 28.00 },
+      { "id_prod": "id_p01", "nome_prod": "chopp", "quantidade_prod": 1, "preco_unitario_produto": 8.00 }],
+    "total_parcial": 165.00 }
 ])
 
 // Criação da coleção vendas
@@ -137,48 +145,51 @@ db.createCollection("vendas")
       data
       id_caixa
       itens_vendidos:				              // array, podem ser vários itens
-          nome_produto                    (referencia produto)
-          quantidade_produto
+          nome_prod                    (referencia produto)
+          quantidade_prod
           preco_pago
       total_pago
       forma_pagamento                     (dinheiro, pix, cartão)
+      cpf_venda                           (cpf na nota)
 
     Só é inserida uma instância em vendas logo antes da comanda correspondente ser fechada,
     os atributos são copiados como valores da nova instância, então a mesa é dada como livre novamente
 */
 
 db.vendas.insertMany([
-  { "_id": "venda_001", "id_comanda_origem": "com_antiga_101", "data": ISODate("2026-06-08T21:40:00Z"), "id_caixa": "cx_20260608",
+  { "id_venda": "venda_001", "id_comanda_origem": "com_antiga_101", "data": ISODate("2026-06-08T21:40:00Z"), "id_caixa": "id_cx20260610",
     "itens_vendidos": [
-      { "nome_produto": "Chopp Artesanal", "quantidade_produto": 5, "preco_pago": 8.00 },
-      { "nome_produto": "Batata Frita", "quantidade_produto": 2, "preco_pago": 15.00 }],
+      { "nome_produto": "Chopp Artesanal", "quantidade_prod": 5, "preco_pago": 8.00 },
+      { "nome_produto": "Batata Frita", "quantidade_prod": 2, "preco_pago": 15.00 }],
     "total_pago": 70.00,
     "forma_pagamento": "cartão" },
 
-  { "_id": "venda_002", "id_comanda_origem": "com_antiga_102", "data": ISODate("2026-06-08T23:15:00Z"), "id_caixa": "cx_20260608",
+  { "id_venda": "venda_002", "id_comanda_origem": "com_antiga_102", "data": ISODate("2026-06-08T23:15:00Z"), "id_caixa": "id_cx20260611",
     "itens_vendidos": [
-      { "nome_produto": "Hambúrguer", "quantidade_produto": 1, "preco_pago": 28.00 },
-      { "nome_produto": "Caipirinha de Limão", "quantidade_produto": 2, "preco_pago": 8.00 }],
+      { "nome_produto": "Hambúrguer", "quantidade_prod": 1, "preco_pago": 28.00 },
+      { "nome_produto": "Caipirinha de Limão", "quantidade_prod": 2, "preco_pago": 8.00 }],
     "total_pago": 44.00,
-    "forma_pagamento": "pix" },
+    "forma_pagamento": "pix",
+    "cpf_venda": "780.678.678-09" },
 
-  { "_id": "venda_003", "id_comanda_origem": "com_antiga_103", "data": ISODate("2026-06-09T22:00:00Z"), "id_caixa": "cx_20260609",
+  { "id_venda": "venda_003", "id_comanda_origem": "com_antiga_103", "data": ISODate("2026-06-09T22:00:00Z"), "id_caixa": "id_cx20260612",
     "itens_vendidos": [
-      { "nome_produto": "Breja", "quantidade_produto": 2, "preco_pago": 6.00 }],
+      { "nome_produto": "Breja", "quantidade_prod": 2, "preco_pago": 6.00 }],
     "total_pago": 12.00,
     "forma_pagamento": "dinheiro" },
 
-  { "_id": "venda_004", "id_comanda_origem": "com_antiga_104", "data": ISODate("2026-06-09T23:55:00Z"), "id_caixa": "cx_20260609",
+  { "id_venda": "venda_004", "id_comanda_origem": "com_antiga_104", "data": ISODate("2026-06-09T23:55:00Z"), "id_caixa": "id_cx20260612",
     "itens_vendidos": [
-      { "nome_produto": "Chopp Artesanal", "quantidade_produto": 10, "preco_pago": 8.00 },
-      { "nome_produto": "Batata Frita", "quantidade_produto": 3, "preco_pago": 15.00 }],
+      { "nome_produto": "Chopp Artesanal", "quantidade_prod": 10, "preco_pago": 8.00 },
+      { "nome_produto": "Batata Frita", "quantidade_prod": 3, "preco_pago": 15.00 }],
     "total_pago": 125.00,
     "forma_pagamento": "cartão" },
 
-  { "_id": "venda_005", "id_comanda_origem": "com_antiga_105", "data": ISODate("2026-06-10T20:10:00Z"), "id_caixa": "cx_20260610",
+  { "id_venda": "venda_005", "id_comanda_origem": "com_antiga_105", "data": ISODate("2026-06-10T20:10:00Z"), "id_caixa": "id_cx20260612",
     "itens_vendidos": [
-      { "nome_produto": "Hambúrguer", "quantidade_produto": 2, "preco_pago": 28.00 },
-      { "nome_produto": "Chopp Artesanal", "quantidade_produto": 4, "preco_pago": 8.00 }],
+      { "nome_produto": "Hambúrguer", "quantidade_prod": 2, "preco_pago": 28.00 },
+      { "nome_produto": "Chopp Artesanal", "quantidade_prod": 4, "preco_pago": 8.00 }],
     "total_pago": 88.00,
-    "forma_pagamento": "pix" }
+    "forma_pagamento": "pix",
+    "cpf_venda": "234.324.432-00" },
 ])
