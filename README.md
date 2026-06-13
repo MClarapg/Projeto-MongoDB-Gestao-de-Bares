@@ -11,7 +11,7 @@ A linguagem dos arquivos é JavaScript apenas por formalidade, também pode ser 
 Como executar:
 1. Esteja com o mongodb Shell executando no terminal.
 2. Cole o código de povoamento.js no terminal e execute.
-3. As consultas estarão em um arquivo separado.
+3. As consultas estão no arquivo consulta.js, copie e cole cada caso separadamente no terminal para melhor visualização.
 
 Link importante:
     Ele tem várias tabelas comparativas de operações em SQL x MongoDB
