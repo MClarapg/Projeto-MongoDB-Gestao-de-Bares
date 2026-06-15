@@ -6,7 +6,7 @@ Requisitos:
 2. MongoDB Shell
 
 Também tem o MongoDB Compass que tem interface gráfica, mas não é necessário.
-A linguagem dos arquivos é JavaScript apenas por formalidade, também pode ser usada a variante mongodb.js.
+A linguagem dos arquivos é JavaScript apenas por formalidade, também pode ser usada a variante mongodb.js ou apenas .txt.
 
 Como executar:
 1. Esteja com o mongodb Shell executando no terminal.
@@ -16,3 +16,6 @@ Como executar:
 Link importante:
     Ele tem várias tabelas comparativas de operações em SQL x MongoDB
 >   https://www.mongodb.com/pt-br/docs/manual/reference/sql-comparison/
+
+Observação sobre as consultas:
+Após o caso 6 (renomeação da coleção vendas para venda), todos os outros casos consideram o novo nome, então a consulta 6 deve ser rodada antes das demais consultas a partir do caso 7.
